@@ -67,8 +67,8 @@ PRG::PRG(byte *key, byte *iv,int cacheSize)
     m_cachedRandomsIdx = m_cacheSize;
   
     //INIT openssl. also creates the key schedule data structures internally
-    EVP_CIPHER_CTX_init(&m_enc);
-    EVP_EncryptInit(&m_enc, EVP_aes_128_ecb(),m_key, m_iv);
+    m_penc = EVP_CIPHER_CTX_new();
+    EVP_EncryptInit(m_penc, EVP_aes_128_ecb(),m_key, m_iv);
   
     m_cachedRandoms = new byte[m_cacheSize*16]();
     m_ctr = new byte[m_cacheSize*16]();
@@ -87,7 +87,7 @@ PRG::~PRG()
 {
     delete[] m_cachedRandoms;
     delete[] m_ctr;
-    EVP_CIPHER_CTX_cleanup(&m_enc);
+    EVP_CIPHER_CTX_free(m_penc);
 }
 
 //// INTERNAL METHOD USED TO GET THE NEXT 128bit pointer. Recreates cache if necessary
@@ -127,7 +127,7 @@ void PRG::prepare(int isPlanned)
     }  
    
     //perform the encrytpion
-    EVP_EncryptUpdate(&m_enc, m_cachedRandoms, &actual , m_ctr, 16*m_cacheSize );
+    EVP_EncryptUpdate(m_penc, m_cachedRandoms, &actual , m_ctr, 16*m_cacheSize );
 
     //reset pointers
     m_cachedRandomsIdx = 0;

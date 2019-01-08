@@ -238,7 +238,7 @@ private:
     static unsigned char m_defaultkey[16];
     static unsigned char m_defaultiv[16];
 
-    EVP_CIPHER_CTX m_enc;
+    EVP_CIPHER_CTX * m_penc;
 
     const byte* m_key;
 
